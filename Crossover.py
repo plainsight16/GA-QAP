@@ -1,70 +1,19 @@
 import random
-# from iteration_utilities import duplicates
-from collections import Counter
 
-
-# find duplicates after crossing over
-def duplicates(lst):
-    return [item for item, count in Counter(lst).items() if count > 1]
-
-
-# crossover function
 def Crossover_Function(data1, data2):
-    """Perform modified version of uniform crossover on 2 chromosomes
+    """Permutation-safe OX crossover. Returns two children."""
+    p1, p2 = data1[0], data2[0]
+    n = len(p1)
+    a, b = sorted(random.sample(range(n), 2))
 
-    Parameters
-    ----------
-    data1 : list
-        data list containing chromosome and fitness score
-    data2 : list
-        data list containing chromosome and fitness score
+    def ox(pa, pb):
+        child = [None]*n
+        child[a:b] = pa[a:b]
+        fill = [g for g in pb if g not in child]
+        i = b
+        for g in fill:
+            if i == n: i = 0
+            child[i] = g; i += 1
+        return child
 
-    Returns
-    -------
-    list
-        return list containing 2 data with modified chromosome
-    """
-
-    # for this function, I modified the uniform crossover function to take care of duplicates after crossover.
-
-    data1[1] = 0
-    data2[1] = 0
-    chromosome1 = list.copy(data1[0])
-    chromosome2 = list.copy(data2[0])
-
-    #print("\nChromosomes before crossover - ")
-    #print(chromosome1)
-    #print(chromosome2)
-
-    # for each index in both chromosomes, use a coin toss to determine which index is crossed over
-    for i in range(len(chromosome1)):
-
-        cointoss = random.randrange(2)
-        if cointoss == 0:
-            chromosome1[i], chromosome2[i] = chromosome2[i], chromosome1[i]
-
-    # find duplicates after crossing over
-    dupes_in_ch1 = list(duplicates(chromosome1))
-    dupes_in_ch2 = list(duplicates(chromosome2))
-
-
-    # handle duplicates if any are found
-    for i in dupes_in_ch1:
-        if i in chromosome1: chromosome1.remove(i)
-        chromosome2.append(i)
-    
-    for i in dupes_in_ch2:
-        if i in chromosome2: chromosome2.remove(i)
-        chromosome1.append(i)
-
-    # replaced the modified chromosomes in the data
-    data1[0] = chromosome1
-    data2[0] = chromosome2
-
-    #print("\nChromsomes after crossover - ")
-    #print(data1[0])
-    #print(data2[0])
-
-    return [data1, data2]
-
-
+    return [[ox(p1, p2), 0], [ox(p2, p1), 0]]

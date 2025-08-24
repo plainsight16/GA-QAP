@@ -54,7 +54,20 @@ def Get_Distance_Or_Flow(i, j, dictionary) -> int:
     
     return dictionary[i, j]
 
-
+def Generate_Distance_Or_Flow(size: int, upper_bound: int,
+                              symmetric: bool = True,
+                              zero_diagonal: bool = True) -> dict:
+    M = {}
+    for i in range(size):
+        for j in range(size):
+            if zero_diagonal and i == j:
+                val = 0
+            elif symmetric and j < i:
+                val = M[(j, i)]
+            else:
+                val = random.randint(0, upper_bound)
+            M[(i, j)] = val
+    return M
 
 def Chromosome_Cost(chromosome, distances, flows):
     """Gets the fitness score for a particular chromosome using the formula minϕ∈Sn ∑ni=1 ∑nj=1 fij⋅dϕ(i)ϕ(j)

@@ -32,7 +32,6 @@ def GeneticAlgorithm(problem_size, population_size, distances, flows, number_of_
     solution = int(sys.maxsize)
     next_generation = []
     n = 0
-    result = None
 
 
     while n < number_of_iterations:
@@ -45,7 +44,6 @@ def GeneticAlgorithm(problem_size, population_size, distances, flows, number_of_
 
         # get fittest data
         fittest_data = list.copy(population[0])
-
 
         # check for the fittest data and print it out
         if fittest_data[1] < solution:
@@ -85,9 +83,9 @@ def GeneticAlgorithm(problem_size, population_size, distances, flows, number_of_
     return result
     
 
-# helper function to help generate random distance and flow values
-distances = Generate_Distance_Or_Flow(6, 20)
-flows = Generate_Distance_Or_Flow(6, 4)
+# # helper function to help generate random distance and flow values
+# distances = Generate_Distance_Or_Flow(6, 20)
+# flows = Generate_Distance_Or_Flow(6, 4)
 
-# Test run an exmaple with input size of 6, population size of 30 and to perform 1000 iterations
-GeneticAlgorithm(6, 30, distances, flows, 1000)
+# # Test run an exmaple with input size of 6, population size of 30 and to perform 1000 iterations
+# GeneticAlgorithm(6, 30, distances, flows, 1000)
