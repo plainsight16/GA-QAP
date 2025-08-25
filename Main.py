@@ -1,93 +1,114 @@
-import random
-from GeneratePopulation import Generate_Initial_Population
-from Mutation import Mutation_Function
-from Crossover import Crossover_Function
-from Selection import Selection_Function
-from Fitness import Cost_Function
+import statistics
 from utils import *
+from visualiser import *
 
-import sys
+def fitness(chromosome: list[int]) -> float:
+    size = len(chromosome)
+    score = 0
+    for i in range(size):
+        for j in range(size):
+            f_i = chromosome[i]
+            f_j = chromosome[j]
+            score += FLOW_MATRIX[f_i][f_j] * DISTANCE_MATRIX[i][j]
+    return score
 
+def pmx_crossover(p1:list[int], p2:list[int]) -> tuple[list[int], list[int]]:
+    size = len(p1)
+    c1, c2 = [-1]*size, [-1]*size
 
-# genetic rep of solution
-chromosome = [1, 2, 3, 4, 5] # where index == location and chromosome[index] == facility
+    # choose two cut points
+    start, end = sorted(random.sample(range(size), 2))
+    c1[start:end] = p1[start:end]
+    c2[start:end] = p2[start:end]
 
-fitness_score = 700 # cost function for this particular chromosome
-
-data = [[chromosome], fitness_score] # data is a list containing chromosome and fitness score
-
-
-
-def GeneticAlgorithm(problem_size, population_size, distances, flows, number_of_iterations):
-
-    # Get dictionary that generates random value for flows and distance between locations and facilities
-    #distances = Generate_Distance_Or_Flow(problem_size, 30)
-    #flows = Generate_Distance_Or_Flow(problem_size, 4)
-
-
-    # generate initial population
-    population = Generate_Initial_Population(problem_size, population_size)
-
+    def fill(child, parentA, parentB):
+        for i in range(start, end):
+            if parentB[i] not in child:
+                pos = i
+                val = parentB[i]
+                while child[pos] != -1:
+                    pos = parentB.index(parentA[pos])
+                child[pos] = val
+        for i in range(size):
+            if child[i] == -1:
+                child[i] = parentB[i]
+        return child
     
-    solution = int(sys.maxsize)
-    next_generation = []
-    n = 0
-    result = None
+    fill(c1, p1, p2)
+    fill(c2, p2, p1)
+    return c1, c2
+
+def swap_mutation(chromosome: list[int]) -> list[int]:
+    size = len(chromosome)
+    c = chromosome[:]
+    i, j = random.sample(range(size), 2)
+    c[i], c[j] = c[j], c[i]
+    return c
+
+def tournament_selection(population: list[list[int]], k: int = 3) -> list[int]:
+    competitors = random.sample(population, k)
+    competitors.sort(key=fitness)
+    return competitors[0]
+
+def genetic_algorithm(N, POP_SIZE, GENERATIONS, mutation_rate=0.2, crossover_rate=0.9):
+    population = generate_population(N, POP_SIZE)
+    best = None
+    best_score = float('inf')
+    best_scores = []
+    avg_scores = []
+
+    for gen in range(GENERATIONS):
+        new_population = []
+
+        population.sort(key=fitness)
+        elite = population[0]
+        new_population.append(elite)
+
+        while len(new_population) < POP_SIZE:
+            parent1 = tournament_selection(population)
+            parent2 = tournament_selection(population)
+
+            if random.random() < crossover_rate:
+                child1, child2 = pmx_crossover(parent1, parent2)
+            else:
+                child1, child2 = parent1, parent2
+            
+            if random.random() < mutation_rate:
+                child1 = swap_mutation(child1)
+            
+            if random.random() < mutation_rate:
+                child2 = swap_mutation(child2)
+            
+            new_population.extend([child1, child2])
+
+        population = new_population[:POP_SIZE]
+
+        # tracking
+        population.sort(key=fitness)
+        fitness_scores = [fitness(ind) for ind in population]
+        score = fitness_scores[0]
+        avg = statistics.mean(fitness_scores)
+        avg_scores.append(avg)
+        best_scores.append(score)
+        if score < best_score:
+            best_score = score
+            best = population[0]
+
+        print(f"Gen {gen+1}: Best score = {best_score}, Avg={avg:.2f}")
+
+    print("\nFinal Best Solution:", best, "Score:", best_score)
+    return best, best_score, best_scores, avg_scores
 
 
-    while n < number_of_iterations:
+if __name__ == "__main__":
+    N = 5
+    POP_SIZE = 100
+    GENERATIONS = 50
+    crossover_rate = 0.9
+    mutation_rate = 0.2
 
-        # get cost function for each data in population
-        population = Cost_Function(population=population, distances=distances, flows=flows)
+    DISTANCE_MATRIX = generate_dist_or_flow(N, 100)
+    FLOW_MATRIX = generate_dist_or_flow(N, 10)
 
-        # sort population according to fitness score
-        population.sort(key = lambda x: x[1])
-
-        # get fittest data
-        fittest_data = list.copy(population[0])
-
-
-        # check for the fittest data and print it out
-        if fittest_data[1] < solution:
-            result = list.copy(fittest_data)
-            solution = fittest_data[1]
-            print("\nSolution for iteration - " + str(n))
-            print(result)
-
-
-        while len(next_generation) < len(population):
-
-            # use selection fucntion to get 2 fit chromosomes
-            data1 = Selection_Function(population)
-            data2 = Selection_Function(population)
-
-            # crossover the 2 chromosome
-            crossed_over_data = Crossover_Function(data1, data2)
-
-            # mutate both chromosomes
-            offspring1 = Mutation_Function(crossed_over_data[0])
-            offspring2 = Mutation_Function(crossed_over_data[1])
-
-            # add offsprings to next generation
-            next_generation.append(offspring1)
-            next_generation.append(offspring2)
-
-        # repeat iteration with new generation
-        population = next_generation
-        next_generation = []
-        n+=1
-    
-    
-    # print final result
-    print("Final solution after " + str(n) +" iterations = ")
-    print(result)
-
-    return result
-    
-
-# helper function to help generate random distance and flow values
-distances = Generate_Distance_Or_Flow(6, 20)
-flows = Generate_Distance_Or_Flow(6, 4)
-
-# Test run an exmaple with input size of 6, population size of 30 and to perform 1000 iterations
-GeneticAlgorithm(6, 30, distances, flows, 1000)
+    best, best_score, best_scores, avg_scores = genetic_algorithm(N, POP_SIZE, GENERATIONS, mutation_rate, crossover_rate)
+    ga_convergence_plot(best_scores, avg_scores)
