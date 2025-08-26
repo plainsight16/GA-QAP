@@ -1,6 +1,7 @@
 import statistics
 from utils import *
-from visualiser import *
+from graph_visualiser import *
+from turtle_visualiser import QAPVisualizer
 
 def fitness(chromosome: list[int]) -> float:
     size = len(chromosome)
@@ -112,3 +113,11 @@ if __name__ == "__main__":
 
     best, best_score, best_scores, avg_scores = genetic_algorithm(N, POP_SIZE, GENERATIONS, mutation_rate, crossover_rate)
     ga_convergence_plot(best_scores, avg_scores)
+
+    # Run the visulisers alternatively and not at the same time
+
+    # Run optionally
+    
+    # viz = QAPVisualizer(draw_every=1, flow_pen_scale=1.2)
+    # viz.draw_generation(best, generation_number=1, best_score=best_score, flow_matrix=FLOW_MATRIX, distance_matrix=DISTANCE_MATRIX)
+    # viz.hold()
