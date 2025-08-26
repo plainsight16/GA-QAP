@@ -9,8 +9,8 @@ It includes both a **matplotlib convergence plot** and a **turtle-based visualiz
 
 1. Clone this repository:
    ```bash
-   git clone <your-repo-url>
-   cd <repo-folder>
+   git clone https://github.com/plainsight16/GA-QAP.git
+   cd GA-QAP
 
 2. Create and activate a virtual environment:
     ```bash
