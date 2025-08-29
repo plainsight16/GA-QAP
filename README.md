@@ -20,6 +20,12 @@ It includes both a **matplotlib convergence plot** and a **turtle-based visualiz
 3. Install dependencies:
     ```bash
     pip install -r requirements.txt
+4. Run main.py    
+    ```bash
+    python Main.py
+
+## Sample View
+![](/sample_gui.png)
 
 ## Results
 
@@ -33,3 +39,6 @@ This plot shows how the **best** and **average** fitness scores evolve across ge
 The turtle visualizer simulates the **best assignment solution** by drawing facilities and connections.
 
 ![](/Simulator.png)
+
+
+
