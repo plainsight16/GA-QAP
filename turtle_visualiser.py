@@ -54,6 +54,7 @@ class QAPVisualizer:
 
     def __init__(
         self,
+        screen,  # pass in a turtle.TurtleScreen
         show_turtle: bool = False,
         point_radius: int = 18,
         font: Tuple[str, int, str] = ("Arial", 14, "normal"),
@@ -71,20 +72,21 @@ class QAPVisualizer:
         self.flow_pen_scale = float(flow_pen_scale)
         self.sleep_seconds = float(sleep_seconds)
 
-        # Turtle setup
-        self.t = turtle.Turtle(shape="classic")
-        self.screen = self.t.screen
-        self.screen.tracer(0, 0)  # manual redraws
+        # Use given TurtleScreen
+        self.screen = screen
+        self.screen.tracer(0, 0)
         self.screen.colormode(255)
+
+        # Create a RawTurtle bound to that screen
+        self.t = turtle.RawTurtle(self.screen, shape="classic")
         self.t.speed("fastest")
         if not show_turtle:
             self.t.hideturtle()
 
-        # Re-created each frame
+        # For drawing coordinates
         self._coords: Dict[int, Tuple[float, float]] = {}
-
-        # Internal counter if the caller doesn't pass generation
         self._frame = 0
+
 
     # ---------------------------- Public API ---------------------------- #
     def draw_generation(
@@ -104,7 +106,7 @@ class QAPVisualizer:
         self._clear_and_reset()
 
         # Draw captions first
-        self._draw_generation_info(generation_number, best_score, chromosome)
+        # self._draw_generation_info(generation_number, best_score, chromosome)
 
         # Draw nodes and remember the coordinates
         self._draw_points(chromosome)
