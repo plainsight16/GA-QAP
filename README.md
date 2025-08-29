@@ -40,5 +40,11 @@ The turtle visualizer simulates the **best assignment solution** by drawing faci
 
 ![](/Simulator.png)
 
+## Legend(how to read)
+Red color of line means long distance, green one - short
+Thick line means big value of flow (aka cost), thin one - small
+Both values are in context of particular distance and flow matrices
+
+In short: thin green is better than thick red
 
 
